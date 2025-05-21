@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-Saving Store</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        /* Header with Clock */
+        header {
+            background: linear-gradient(135deg, #000000, #320e64);
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .slogan {
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        
+        /* Clock Styles */
+        .face {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            outline: 10px solid #333;
+            background: repeating-radial-gradient(circle at 50% 50%, 
+            rgba(200,200,200,.2) 0%, rgba(200,200,200,.2) 2%, 
+            transparent 2%, transparent 3%, rgba(200,200,200,.2) 3%, 
+            transparent 3%), conic-gradient(white 0%, silver 10%, 
+            white 35%, silver 45%, white 60%, silver 70%, 
+            white 80%, silver 95%, white 100%);
+            box-shadow: inset 0 0 20px #0007;
+            margin: 0 2rem;
+        }
+
+        .hour {
+            position: absolute;
+            width: 5px;
+            height: 60px;
+            background: #aaa;
+            left: 87.5px;
+            top: 43px;
+            border-radius: 3px 3px 1px 1px;
+            transform-origin: 2px 47px;
+            box-shadow: 0 0 5px #0005,inset 1.5px 3px 0px #333, inset -1.5px -3px 0px #333;
+            z-index: 1;
+            animation: watch 43200s linear infinite;
+        }
+
+        .minute {
+            position: absolute;
+            width: 4px;
+            height: 78px;
+            background: #aaa;
+            left: 88px;
+            top: 25px;
+            border-radius: 3px 3px 1px 1px;
+            transform-origin: 2px 65px;
+            box-shadow: 0 0 5px #0005, inset 1.5px 3px 0px #333, inset -1.5px -3px 0px #333;
+            z-index: 2;
+            animation: watch 3600s linear infinite;
+        }
+
+        .second {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: red;
+            left: 85px;
+            top: 85px;
+            border-radius: 50%;
+            border: 1px solid #eee;
+            z-index: 3;
+            animation: watch 60s steps(60, end) 0s infinite;
+        }
+
+        .second::before {
+            content: "";
+            position: absolute;
+            width: 1px;
+            height: 85px;
+            left: 3px;
+            bottom: -10px;
+            background: red;
+            border-radius: 2px;
+            box-shadow: 5px 0 2px rgba(128, 128, 128, 0.2);
+        }
+
+        .second::after {
+            content: "";
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            left: 2px;
+            top: 2px;
+            background: #555;
+            border-radius: 50%;
+        }
+
+        .v-index {
+            position: absolute;
+            color: #333;
+            font-size: 24px;
+            left: 83.5px;
+            top: -3px;
+            text-shadow: 0 157px 0 #333;
+            z-index: 1
+        }
+
+        .h-index {
+            position: absolute;
+            color: #333;
+            font-size: 24px;
+            top: 72px;
+            left: 5px;
+            transform: rotate(-90deg);
+            text-shadow: 0 158px 0 #333;
+            z-index: 1;
+        }
+
+        @keyframes watch {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Products Grid */
+        .products-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        /* YOUR PRODUCT CARD DESIGN */
+        .card {
+            --card-bg: #ffffff;
+            --card-accent: #7c3aed;
+            --card-text: #1e293b;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            height: 254px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .card__shine {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card__glow {
+            position: absolute;
+            inset: -10px;
+            background: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.3) 0%, rgba(124, 58, 237, 0) 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .card__content {
+            padding: 1.25em;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75em;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card__badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #10b981;
+            color: white;
+            padding: 0.25em 0.5em;
+            border-radius: 999px;
+            font-size: 0.7em;
+            font-weight: 600;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.4s ease 0.1s;
+        }
+
+        .card__image {
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(45deg, #a78bfa, #8b5cf6);
+            border-radius: 12px;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card__image::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 30%),
+                repeating-linear-gradient(45deg, rgba(139, 92, 246, 0.1) 0px, rgba(139, 92, 246, 0.1) 2px, transparent 2px, transparent 4px);
+            opacity: 0.5;
+        }
+
+        .card__text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25em;
+        }
+
+        .card__title {
+            color: var(--card-text);
+            font-size: 1.1em;
+            margin: 0;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .card__description {
+            color: var(--card-text);
+            font-size: 0.75em;
+            margin: 0;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .card__footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .card__price {
+            color: var(--card-text);
+            font-weight: 700;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .card__button {
+            width: 28px;
+            height: 28px;
+            background: var(--card-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: scale(0.9);
+        }
+
+        /* Hover Effects */
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+
+        .card:hover .card__shine {
+            opacity: 1;
+            animation: shine 3s infinite;
+        }
+
+        .card:hover .card__glow {
+            opacity: 1;
+        }
+
+        .card:hover .card__badge {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .card:hover .card__image {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover .card__title {
+            color: var(--card-accent);
+            transform: translateX(2px);
+        }
+
+        .card:hover .card__description {
+            opacity: 1;
+            transform: translateX(2px);
+        }
+
+        .card:hover .card__price {
+            color: var(--card-accent);
+            transform: translateX(2px);
+        }
+
+        .card:hover .card__button {
+            transform: scale(1);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+        }
+
+        .card:hover .card__button svg {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Animations */
+        @keyframes shine {
+            0% { background-position: -100% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Payment Popup */
+        .payment-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .payment-container {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            padding: 2rem;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: #e74c3c;
+        }
+        
+        .payment-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .product-summary {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .crypto-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        /* Crypto Cards */
+        .crypto-card {
+            width: 220px;
+            height: 320px;
+            background: #313131;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+        
+        .crypto-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .crypto-card.selected {
+            border-color: #2ecc71;
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+        }
+        
+        .crypto-img {
+            height: 30%;
+            position: absolute;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+        
+        .crypto-info {
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            z-index: 2;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .crypto-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .crypto-type {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+        
+        .crypto-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .crypto-card:hover .crypto-img {
+            height: 65%;
+            filter: blur(7px);
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        .crypto-card:hover .crypto-info {
+            opacity: 1;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .confirm-btn {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 1.5rem auto 0;
+            width: 200px;
+            text-align: center;
+        }
+        
+        .confirm-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        
+        .confirm-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .crypto-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .crypto-card {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+            }
+            
+            .face {
+                margin: 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Clock -->
+    <header>
+        <div class="header-content">
+            <div class="face">
+                <p class="v-index">II</p>
+                <p class="h-index">II</p>
+                <div class="hand">
+                    <div class="hand">
+                        <div class="hour"></div>
+                        <div class="minute"></div>
+                        <div class="second"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="slogan">"Saving your time, one click at a time"</p>
+    </header>
+    
+    <!-- Products Section -->
+    <div class="products-container">
+        <h2>Our Products</h2>
+        <div class="products-grid">
+            <!-- Product 1 -->
+            <div class="card" onclick="showPaymentPopup('Premium Crypto Wallet', 49.99)">
+                <div class="card__shine"></div>
+                <div class="card__glow"></div>
+                <div class="card__content">
+                    <div class="card__badge">NEW</div>
+                    <div class="card__image" style="background-image: url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80')"></div>
+                    <div class="card__text">
+                        <p class="card__title">Premium Crypto Wallet</p>
+                        <p class="card__description">Secure storage for your digital assets</p>
+                    </div>
+                    <div class="card__footer">
+                        <div class="card__price">$49.99</div>
+                        <div class="card__button">
+                            <svg height="16" width="16" viewBox="0 0 24 24">
+                                <path stroke-width="2" stroke="currentColor" d="M4 12H20M12 4V20" fill="currentColor"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 2 -->
+            <div class="card" onclick="showPaymentPopup('Blockchain Course', 99.99)">
+                <div class="card__shine"></div>
+                <div class="card__glow"></div>
+                <div class="card__content">
+                    <div class="card__badge">POPULAR</div>
+                    <div class="card__image" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80')"></div>
+                    <div class="card__text">
+                        <p class="card__title">Blockchain Course</p>
+                        <p class="card__description">Master blockchain development</p>
+                    </div>
+                    <div class="card__footer">
+                        <div class="card__price">$99.99</div>
+                        <div class="card__button">
+                            <svg height="16" width="16" viewBox="0 0 24 24">
+                                <path stroke-width="2" stroke="currentColor" d="M4 12H20M12 4V20" fill="currentColor"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 3 -->
+            <div class="card" onclick="showPaymentPopup('Trading Bot', 149.99)">
+                <div class="card__shine"></div>
+                <div class="card__glow"></div>
+                <div class="card__content">
+                    <div class="card__badge">HOT</div>
+                    <div class="card__image" style="background-image: url('https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80')"></div>
+                    <div class="card__text">
+                        <p class="card__title">Trading Bot</p>
+                        <p class="card__description">Automate your crypto trades</p>
+                    </div>
+                    <div class="card__footer">
+                        <div class="card__price">$149.99</div>
+                        <div class="card__button">
+                            <svg height="16" width="16" viewBox="0 0 24 24">
+                                <path stroke-width="2" stroke="currentColor" d="M4 12H20M12 4V20" fill="currentColor"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 4 -->
+            <div class="card" onclick="showPaymentPopup('NFT Collection', 199.99)">
+                <div class="card__shine"></div>
+                <div class="card__glow"></div>
+                <div class="card__content">
+                    <div class="card__badge">LIMITED</div>
+                    <div class="card__image" style="background-image: url('https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80')"></div>
+                    <div class="card__text">
+                        <p class="card__title">NFT Collection</p>
+                        <p class="card__description">Exclusive digital artwork</p>
+                    </div>
+                    <div class="card__footer">
+                        <div class="card__price">$199.99</div>
+                        <div class="card__button">
+                            <svg height="16" width="16" viewBox="0 0 24 24">
+                                <path stroke-width="2" stroke="currentColor" d="M4 12H20M12 4V20" fill="currentColor"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Popup -->
+    <div id="paymentPopup" class="payment-popup">
+        <div class="payment-container">
+            <span class="close-btn" onclick="hidePaymentPopup()">&times;</span>
+            
+            <div class="payment-header">
+                <h2>Complete Your Purchase</h2>
+            </div>
+            
+            <div class="product-summary">
+                <p>You're purchasing: <strong id="productName"></strong></p>
+                <p>Total: <strong id="productPrice"></strong></p>
+            </div>
+            
+            <h3 style="text-align: center; margin-bottom: 1rem;">Select Payment Method</h3>
+            
+            <div class="crypto-options">
+                <!-- Ethereum Card -->
+                <div class="crypto-card" onclick="selectPayment('ethereum')">
+                    <svg class="crypto-img" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="100%" height="100%" version="1.1" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 784.37 1277.39" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g id="Layer_x0020_1">
+                            <metadata id="CorelCorpID_0Corel-Layer"></metadata>
+                            <g id="_1421394342400">
+                                <g>
+                                    <polygon fill="#343434" fill-rule="nonzero" points="392.07,0 383.5,29.11 383.5,873.74 392.07,882.29 784.13,650.54"></polygon>
+                                    <polygon fill="#8C8C8C" fill-rule="nonzero" points="392.07,0 -0,650.54 392.07,882.29 392.07,472.33"></polygon>
+                                    <polygon fill="#3C3C3B" fill-rule="nonzero" points="392.07,956.52 387.24,962.41 387.24,1263.28 392.07,1277.38 784.37,724.89"></polygon>
+                                    <polygon fill="#8C8C8C" fill-rule="nonzero" points="392.07,1277.38 392.07,956.52 -0,724.89"></polygon>
+                                    <polygon fill="#141414" fill-rule="nonzero" points="392.07,882.29 784.13,650.54 392.07,472.33"></polygon>
+                                    <polygon fill="#393939" fill-rule="nonzero" points="0,650.54 392.07,882.29 392.07,472.33"></polygon>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                    <div class="crypto-info">
+                        <p class="crypto-name">Ethereum</p>
+                        <span class="crypto-type">Cryptocurrency</span>
+                        <p class="crypto-price">1,654.34€</p>
+                    </div>
+                </div>
+                
+                <!-- Bitcoin Card -->
+                <div class="crypto-card" onclick="selectPayment('bitcoin')">
+                    <svg class="crypto-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                        <g fill="#f7931a">
+                            <path d="M63.04 39.62c-4.24 16.99-22.38 27.3-39.36 23.06C6.7 58.44-3.61 40.3.63 23.32 4.86 6.34 23-3.98 40 .26c17.04 4.24 27.36 22.38 23.04 39.36z" fill="#f7931a"/>
+                            <path d="M46.14 27.78c.63-4.2-2.57-6.45-6.94-7.95l1.42-5.68-3.46-.86-1.38 5.54c-.91-.23-1.84-.44-2.76-.66l1.4-5.6-3.45-.86-1.42 5.68c-.75-.17-1.49-.34-2.21-.51l.01-.06-4.78-1.19-.92 3.71s2.57.59 2.52.63c1.4.35 1.65 1.28 1.61 2.02l-1.61 6.45c.1.02.22.06.35.1l-.36-.09-2.24 8.97c-.17.42-.59 1.05-1.54.81.04.05-2.52-.63-2.52-.63l-1.72 4.13 4.51 1.12c.84.21 1.66.43 2.47.64l-1.44 5.77 3.45.86 1.42-5.69c.95.26 1.86.5 2.76.72l-1.41 5.66 3.46.86 1.44-5.77c5.95 1.13 10.43.67 12.32-4.74 1.51-4.36-.07-6.88-3.19-8.52 2.27-.52 3.98-2.01 4.43-5.08zm-8.02 11.25c-1.07 4.32-8.33 1.98-10.68 1.4l1.9-7.62c2.36.59 9.91 1.77 8.78 6.22zm1.06-11.31c-.98 3.93-7.03 1.93-8.99 1.44l1.72-6.9c1.96.49 8.26 1.4 7.27 5.46z" fill="#fff"/>
+                        </g>
+                    </svg>
+                    <div class="crypto-info">
+                        <p class="crypto-name">Bitcoin</p>
+                        <span class="crypto-type">Cryptocurrency</span>
+                        <p class="crypto-price">36,542.78€</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="confirmBtn" class="confirm-btn" disabled onclick="processPayment()">
+                Confirm Payment
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Current product and payment selection
+        let currentProduct = {
+            name: '',
+            price: 0
+        };
+        let selectedPaymentMethod = null;
+        
+        // Show payment popup when product is clicked
+        function showPaymentPopup(name, price) {
+            currentProduct.name = name;
+            currentProduct.price = price;
+            
+            // Update the popup content
+            document.getElementById('productName').textContent = name;
+            document.getElementById('productPrice').textContent = '$' + price.toFixed(2);
+            
+            // Reset selection
+            selectedPaymentMethod = null;
+            document.querySelectorAll('.crypto-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('confirmBtn').disabled = true;
+            
+            // Show the popup
+            document.getElementById('paymentPopup').style.display = 'flex';
+        }
+        
+        // Hide payment popup
+        function hidePaymentPopup() {
+            document.getElementById('paymentPopup').style.display = 'none';
+        }
+        
+        // Select payment method
+        function selectPayment(method) {
+            selectedPaymentMethod = method;
+            
+            // Update UI
+            document.querySelectorAll('.crypto-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            document.getElementById('confirmBtn').disabled = false;
+        }
+        
+        // Process payment
+        function processPayment() {
+            if (!selectedPaymentMethod) {
+                alert('Please select a payment method');
+                return;
+            }
+            
+            // Here you would normally connect to a payment processor
+            // For this example, we'll just show a confirmation
+            
+            const confirmationMsg = `
+                Payment Processing:
+                Product: ${currentProduct.name}
+                Amount: $${currentProduct.price.toFixed(2)}
+                Method: ${selectedPaymentMethod.charAt(0).toUpperCase() + selectedPaymentMethod.slice(1)}
+                
+                (In a real implementation, this would connect to your payment gateway)
+            `;
+            
+            alert(confirmationMsg);
+            
+            // Close the popup
+            hidePaymentPopup();
+            
+            // Show success message (you could enhance this)
+            setTimeout(() => {
+                alert('Payment successful! Thank you for your purchase.');
+            }, 100);
+        }
+        
+        // Close popup when clicking outside
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('paymentPopup')) {
+                hidePaymentPopup();
+            }
+        }
+    </script>
+</body>
+</html>
